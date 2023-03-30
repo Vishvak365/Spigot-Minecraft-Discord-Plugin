@@ -1,12 +1,17 @@
 package com.vishvak.spigotdiscord;
 
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.net.URI;
@@ -22,22 +27,39 @@ public class Main extends JavaPlugin implements Listener {
         System.out.println("I have started the Vishvak Discord Server thing");
         try {
             discord = new DiscordInterface();
-            discord.sendMessage("Plugin up and running");
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
     @EventHandler
     public void onLogin(PlayerLoginEvent event) {
-        Bukkit.broadcastMessage("Player " + event.getPlayer().getName() + " is logging in!");
-        System.out.println("Player " + event.getPlayer().getName() + " is logging in!");
         discord.sendMessage("Player " + event.getPlayer().getName().toString() + " is logging in!");
     }
     @EventHandler
     public void onPlayerDeath (PlayerDeathEvent event){
         OfflinePlayer player =  event.getEntity().getPlayer();
-        System.out.println(player.getName()+" died lmao");
-        System.out.println(event.getEntity().getLocation());
-        discord.sendMessage(player.getName()+" Died at "+event.getEntity().getLocation());
+        String name = player.getName();
+        int locationX = event.getEntity().getLocation().getBlockX();
+        int locationY = event.getEntity().getLocation().getBlockY();
+        int locationZ = event.getEntity().getLocation().getBlockZ();
+        String world = event.getEntity().getWorld().getName().toString();
+        StringBuilder discordMessage = new StringBuilder("```\n");
+        discordMessage.append(name+" Died in the "+world+" at\n"
+                +"X:"+locationX+"\n"
+                +"Y:"+locationY+"\n"
+                +"Z:"+locationZ+"\n"
+                +"```\n");
+        PlayerInventory inventory = event.getEntity().getInventory();
+        if(inventory.getSize() > 0){
+            discordMessage.append("```\nItems Lost:\n");
+            for(ItemStack item : inventory){
+                if(item!=null){
+                    discordMessage.append(item.getType()).append(" X ").append(item.getAmount()).append("\n");
+                }
+            }
+            discordMessage.append("```");
+            System.out.println(discordMessage);
+        }
+        discord.sendMessage(discordMessage.toString());
     }
 }
