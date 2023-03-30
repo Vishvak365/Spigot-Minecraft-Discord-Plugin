@@ -5,6 +5,7 @@
     </CLASSES>
     <JAVADOC>
       <root url="https://hub.spigotmc.org/javadocs/spigot/" />
+      <root url="https://ci.dv8tion.net/job/JDA5/javadoc/" />
     </JAVADOC>
     <SOURCES />
     <jarDirectory url="file://$PROJECT_DIR$/libs" recursive="false" />
